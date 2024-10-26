@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { TransaccionesInterface } from './interfaces/transacciones.interface';
 import { MailerService } from '@nestjs-modules/mailer';
 import { JwtService } from '@nestjs/jwt';
+import { ConfirmarTransaccionesDto } from './dto/confirmar-transaccione.dto';
 
 @Injectable()
 export class TransaccionesService {
@@ -87,9 +88,7 @@ export class TransaccionesService {
 
         // Generar token con datos de usuario
         const token_sesion = await this.jwtService.sign({documento})
-        const decode = await this.jwtService.verifyAsync(token_sesion, {
-            secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
-        });
+
 
         // Generar llave de 6 digitos
         const llave = Math.floor(Math.random() * 900000) + 100000;
@@ -128,6 +127,46 @@ export class TransaccionesService {
             throw new InternalServerErrorException();
         }
 
+    }
+
+    async confirmar({llave}: ConfirmarTransaccionesDto, {id, documento}) {
+        try {
+            // Validar que la llave existe
+            const llave = await this.llavesTemporalesRepository.createQueryBuilder('llaves')
+            .leftJoinAndSelect('llaves.usuario', 'usuario')
+            .where(`usuario.documento = ${documento}`)
+            .andWhere('llaves.fecha_vencimiento > :fechaActual')
+            .setParameter('fechaActual', new Date())
+            .orderBy('llaves.fecha_creacion', 'DESC')
+            .getRawOne();
+            if (!llave) {
+                return {
+                    mensaje: 'No cuenta con una llave activa',
+                }
+            }
+
+            // validar que tenga suficiente saldo
+            const {saldo} = await this.obtenerSaldoUsuario(documento)
+            if (Number(saldo) < Number(llave.llaves_monto)){
+                return {
+                    mensaje: 'El usuario no cuenta con saldo suficiente',
+                }
+            }
+
+            // Borrar 
+            const reg = await this.llavesTemporalesRepository.findOneBy({ id:llave.id });
+            this.llavesTemporalesRepository.remove(reg);
+
+            // Ejecutar descuento
+            return this.crear({
+                monto: llave.llaves_monto,
+                documento,
+                descripcion: 'pago',
+            }, id)
+
+        } catch (error) {
+            
+        }
     }
 
     sendMail(): any{

@@ -16,7 +16,7 @@ import { LlavesTemporales } from 'src/transacciones/entities/llaves-temporales.e
     JwtModule.register({
       global: true,
       secret: 'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
-      signOptions: { expiresIn: '30m' },
+      signOptions: { expiresIn: '24h' },
     }),
   ]
 })
