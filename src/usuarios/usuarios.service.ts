@@ -1,69 +1,56 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Usuario } from './interfaces/usuarios.interface';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { UsuarioInterface } from './interfaces/usuarios.interface';
 import { v4 as uuid } from 'uuid';
 import { EditarUsuarioDto, CrearUsuarioDto } from './dtos';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TransaccionUsuario, Usuario } from './entities/index';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsuariosService {
 
-    private usuarios: Usuario[] = [
-        {
-            id: uuid(),
-            nombre: 'jose',
-            apellido: 'Quijada',
-        },
-        {
-            id: uuid(),
-            nombre: 'pedro',
-            apellido: 'serrano',
-        },
-        {
-            id: uuid(),
-            nombre: 'maria',
-            apellido: 'ventana'
-        },
-    ];
+    constructor(
+        @InjectRepository(Usuario)
+        private readonly usuarioRepository: Repository<Usuario>,
+
+        @InjectRepository(TransaccionUsuario)
+        private readonly transaccionUsuarioRepository: Repository<TransaccionUsuario>,
+    ){}
 
     buscarTodos(){
-        return this.usuarios;
+        return this.usuarioRepository.find({});
     }
 
-    buscarPorId(id: String){
-        const usuario = this.usuarios.find( usuario => usuario.id === id)
+    async buscarPorId(id: String){
+        const usuario = await this.usuarioRepository.findOneBy({id});
 
-        if (!usuario) throw new NotFoundException('El id no existe en nuestros registros')
-
-        return usuario
-    }
-
-    crear( {nombre, apellido}: CrearUsuarioDto){
-        const usuario : Usuario = {
-            id: uuid(),
-            nombre,
-            apellido,
-        }
+        if (!usuario) throw new NotFoundException('Usuario no existe en nuestros registros');
 
         return usuario;
     }
 
-    actualizar(editarUsuarioDto: EditarUsuarioDto){
+    async crear( crearUsuarioDto: CrearUsuarioDto){
+        try {
+            const usuario = this.usuarioRepository.create(crearUsuarioDto);
 
-        let usuarioDB = this.buscarPorId(editarUsuarioDto.id)
+            await this.usuarioRepository.save(usuario);
 
-        this.usuarios = this.usuarios.map((usuario)=>{
-            if (usuario.id === editarUsuarioDto.id){
-                usuarioDB = {
-                    ...usuarioDB,
-                    ...editarUsuarioDto,
-                    id: editarUsuarioDto.id,
-                }
-                return usuarioDB;
-            }
+            return usuario;    
+        } catch (error) {
+            console.log(error);
+            throw new InternalServerErrorException();
+        }
+    }
 
-            return usuario;
+    async actualizar(editarUsuarioDto: EditarUsuarioDto){
+        const usuario = await this.usuarioRepository.preload({
+            id: editarUsuarioDto.id,
+            ...editarUsuarioDto,
         })
 
-        return this.usuarios
+        if ( !usuario ) throw new NotFoundException('Id no existe en nuestros registros')
+
+        return this.usuarioRepository.save(usuario)
     }
 
 }

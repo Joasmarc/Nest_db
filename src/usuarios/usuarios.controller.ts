@@ -15,7 +15,7 @@ export class UsuariosController {
     }
 
     @Get('/:id')
-    obtenerPorId( @Param('id', ParseUUIDPipe) id: String,  ){
+    obtenerPorId( @Param('id', ParseUUIDPipe) id: String){
         return this.usuariosService.buscarPorId(id)
     }
 
