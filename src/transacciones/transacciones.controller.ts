@@ -21,9 +21,21 @@ export class TransaccionesController {
         return this.transaccionesService.obtenerTodasTransacciones();
     }
 
-    @Get('/:documento')
-    obtenerPorId( @Param('documento') documento: String){
-        return this.transaccionesService.obtenerSaldoUsuario(documento)
+    // @Get('/:documento')
+    // obtenerPorId( @Param('documento') documento: String){
+    //     return this.transaccionesService.obtenerSaldoUsuario(documento)
+    // }
+
+    @Post('pagar')
+    async pagar(@Body() crearTransaccioneDto: CrearTransaccioneDto) {
+        const usuario = await this.usuariosService.buscarPorDocumento(crearTransaccioneDto.documento)
+        return this.transaccionesService.pagar(crearTransaccioneDto, usuario);
+    }
+
+    @Get('enviar')
+    enviarEmail() {
+        // const usuario = await this.usuariosService.buscarPorDocumento(crearTransaccioneDto.documento)
+        // return this.transaccionesService.crear(crearTransaccioneDto, usuario.id);
     }
 
 

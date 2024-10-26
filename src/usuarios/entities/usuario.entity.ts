@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { TransaccionUsuario } from "../../transacciones/entities/transaccion-usuario.entity";
+import { LlavesTemporales } from "src/transacciones/entities/llaves-temporales.entity";
 
 @Entity()
 export class Usuario {
@@ -25,5 +26,12 @@ export class Usuario {
         {cascade: true}
     )
     transaccion?: TransaccionUsuario
+
+    @OneToMany(
+        () => LlavesTemporales,
+        (llavesTemporales) => llavesTemporales.usuario,
+        {cascade: true}
+    )
+    llaves_temporales?: LlavesTemporales
 
 }

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransaccionesModule } from './transacciones/transacciones.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -16,7 +17,18 @@ import { TransaccionesModule } from './transacciones/transacciones.module';
       autoLoadEntities: true,
     }),
     UsuariosModule,
-    TransaccionesModule
+    TransaccionesModule,
+    MailerModule.forRoot({
+      transport: {
+        host: 'smtp.hostinger.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: 'joasmarc@tecnojool.com',
+          pass: 'Epayco.26102024',
+        }
+      }
+    })
   ],
   controllers: [],
   providers: [],

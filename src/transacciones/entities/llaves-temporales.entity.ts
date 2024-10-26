@@ -2,26 +2,29 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Usuario } from "../../usuarios/entities/usuario.entity";
 
 @Entity()
-export class TransaccionUsuario {
+export class LlavesTemporales {
 
     @PrimaryGeneratedColumn('uuid')
     readonly id: String;
 
     @Column('varchar')
-    readonly fecha: String;
+    readonly documento: String;
+
+    @Column('int')
+    readonly llave: Number;
 
     @Column('varchar')
-    readonly tipo: 'ingreso' | 'egreso';
+    readonly fecha_creacion: String;
 
     @Column('varchar')
-    readonly descripcion: 'recarga' | 'pago' | 'recepcion' | 'envio';
+    readonly fecha_vencimiento: String;
 
     @Column('float')
     readonly monto: Number ;
 
     @ManyToOne(
         () => Usuario,
-        (usuario) => usuario.llaves_temporales
+        (usuario) => usuario.transaccion
     )
     usuario: Usuario
 
