@@ -5,19 +5,26 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 
 @Controller('transacciones')
 export class TransaccionesController {
-  constructor(
-    private readonly transaccionesService: TransaccionesService,
-    private readonly usuariosService: UsuariosService,
-  ){}
+    constructor(
+        private readonly transaccionesService: TransaccionesService,
+        private readonly usuariosService: UsuariosService,
+    ) { }
 
-  @Post()
-  async crear(@Body() crearTransaccioneDto: CrearTransaccioneDto) {
-    const usuario = await this.usuariosService.buscarPorDocumento(crearTransaccioneDto.documento)
-    return this.transaccionesService.crear(crearTransaccioneDto, usuario.id);
-  }
+    @Post()
+    async crear(@Body() crearTransaccioneDto: CrearTransaccioneDto) {
+        const usuario = await this.usuariosService.buscarPorDocumento(crearTransaccioneDto.documento)
+        return this.transaccionesService.crear(crearTransaccioneDto, usuario.id);
+    }
 
-  @Get()
-  obtenerTodasTransacciones(){
-      return this.transaccionesService.obtenerTodasTransacciones();
-  }
+    @Get()
+    obtenerTodasTransacciones() {
+        return this.transaccionesService.obtenerTodasTransacciones();
+    }
+
+    @Get('/:documento')
+    obtenerPorId( @Param('documento') documento: String){
+        return this.transaccionesService.obtenerSaldoUsuario(documento)
+    }
+
+
 }
