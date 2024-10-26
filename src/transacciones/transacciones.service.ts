@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CrearTransaccioneDto } from './dto/crear-transaccione.dto';
 import { TransaccionUsuario } from './entities/transaccion-usuario.entity';
 import { Repository } from 'typeorm';
-import { Usuario } from 'src/usuarios/entities';
-
 
 @Injectable()
 export class TransaccionesService {
@@ -15,13 +13,21 @@ export class TransaccionesService {
         
     ) { }
 
-    async crear(crearTransaccioneDto: CrearTransaccioneDto) {
+    async crear(crearTransaccioneDto: CrearTransaccioneDto, id:String) {
+
+        const tipos: Object = {
+            recarga: 'ingreso',
+            recepcion: 'ingreso',
+            pago: 'egreso',
+            envio: 'egreso',
+        }
+
         try {
             const transaccion =  this.transaccionUsuarioRepository.create({
                 ...crearTransaccioneDto,
-                tipo: 'ingreso',
+                tipo: tipos[crearTransaccioneDto.descripcion],
                 fecha: new Date().toISOString().slice(0, 10),
-                usuario: { id: crearTransaccioneDto.usuarioId }
+                usuario: { id }
             });
 
             await this.transaccionUsuarioRepository.save(transaccion);
@@ -32,6 +38,10 @@ export class TransaccionesService {
             throw new InternalServerErrorException();
         }
     }
+
+
+
+
 
     async obtenerTodasTransacciones() {
         return this.transaccionUsuarioRepository.createQueryBuilder('transacciones')

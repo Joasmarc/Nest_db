@@ -17,18 +17,6 @@ export class UsuariosService {
         private readonly transaccionUsuarioRepository: Repository<TransaccionUsuario>,
     ){}
 
-    buscarTodos(){
-        return this.usuarioRepository.find({});
-    }
-
-    async buscarPorId(id: String){
-        const usuario = await this.usuarioRepository.findOneBy({id});
-
-        if (!usuario) throw new NotFoundException('Usuario no existe en nuestros registros');
-
-        return usuario;
-    }
-
     async crear( crearUsuarioDto: CrearUsuarioDto){
         try {
             const usuario = this.usuarioRepository.create(crearUsuarioDto);
@@ -40,6 +28,26 @@ export class UsuariosService {
             console.log(error);
             throw new InternalServerErrorException();
         }
+    }
+
+    async buscarPorDocumento(documento: String){
+        const usuario = await this.usuarioRepository.findOneBy({documento});
+
+        if (!usuario) throw new NotFoundException('Usuario no existe en nuestros registros');
+
+        return usuario;
+    }
+
+    buscarTodos(){
+        return this.usuarioRepository.find({});
+    }
+
+    async buscarPorId(id: String){
+        const usuario = await this.usuarioRepository.findOneBy({id});
+
+        if (!usuario) throw new NotFoundException('Usuario no existe en nuestros registros');
+
+        return usuario;
     }
 
     async actualizar(editarUsuarioDto: EditarUsuarioDto){

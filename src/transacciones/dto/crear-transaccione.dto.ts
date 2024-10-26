@@ -1,12 +1,13 @@
-import { IsNumber, IsString, IsUUID } from "class-validator";
+import { IsNumber, IsPositive, IsString, IsUUID } from "class-validator";
 import { Usuario } from "src/usuarios/entities";
 
 export class CrearTransaccioneDto {
 
-    @IsUUID('4', {message:`El 'id' no tiene un formato correcto`})
-    readonly usuarioId: String;
+    @IsString({message:`El 'documento' tiene que ser una cadena`})
+    readonly documento: String;
 
     @IsNumber()
+    @IsPositive()
     readonly monto: Number;
 
     @IsString()
